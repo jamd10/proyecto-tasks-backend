@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
   res.send('API RESTful de Tareas funcionando correctamente.');
 });
 
-// Manejo de rutas no encontradas
+// Manejo de las rutas no encontradas
 app.use((req, res) => {
   res.status(404).json({ message: 'Endpoint no encontrado.' });
 });
