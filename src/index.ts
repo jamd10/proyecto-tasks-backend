@@ -1,9 +1,9 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-// Rutas
+// Importación de rutas
 import authRoutes from './routes/authRoutes';
 import taskRoutes from './routes/taskRoutes';
 
@@ -22,24 +22,24 @@ mongoose
   .then(() => console.log('Conectado a MongoDB'))
   .catch((err) => console.error('Error al conectar a MongoDB:', err));
 
-// Endpoints principales
-app.use('/auth', authRoutes);
-app.use('/tasks', taskRoutes);
+// Rutas principales
+app.use('/auth', authRoutes); // Rutas de autenticación
+app.use('/tasks', taskRoutes); // Rutas de tareas
 
 // Endpoint base
 app.get('/', (req, res) => {
   res.send('API RESTful de Tareas funcionando correctamente.');
 });
 
-// Manejo de las rutas no encontradas
+// Manejo de rutas no encontradas
 app.use((req, res) => {
   res.status(404).json({ message: 'Endpoint no encontrado.' });
 });
 
 // Manejo global de errores
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
-  res.status(500).json({ message: 'Error interno del servidor.', error: err.message });
+  res.status(err.status || 500).json({ message: 'Internal Server Error', error: err.message });
 });
 
 // Iniciar el servidor

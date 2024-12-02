@@ -15,9 +15,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTask = exports.updateTask = exports.createTask = exports.getTasks = void 0;
 const Task_1 = __importDefault(require("../models/Task"));
 const getTasks = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page = 1, limit = 10 } = req.query;
     try {
-        const tasks = yield Task_1.default.find({ userId: req.user.id });
-        return res.json(tasks);
+        const tasks = yield Task_1.default.find({ userId: req.user.id })
+            .limit(Number(limit))
+            .skip((Number(page) - 1) * Number(limit))
+            .sort({ createdAt: -1 });
+        const total = yield Task_1.default.countDocuments({ userId: req.user.id });
+        return res.json({
+            tasks,
+            total,
+            page: Number(page),
+            pages: Math.ceil(total / Number(limit)),
+        });
     }
     catch (error) {
         return res.status(500).json({ message: 'Server error.', error });

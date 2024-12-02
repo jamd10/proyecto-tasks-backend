@@ -3,9 +3,22 @@ import Task from '../models/Task';
 import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const getTasks = async (req: AuthRequest, res: Response): Promise<Response> => {
+  const { page = 1, limit = 10 } = req.query;
+
   try {
-    const tasks = await Task.find({ userId: req.user.id });
-    return res.json(tasks);
+    const tasks = await Task.find({ userId: req.user.id })
+      .limit(Number(limit))
+      .skip((Number(page) - 1) * Number(limit))
+      .sort({ createdAt: -1 });
+
+    const total = await Task.countDocuments({ userId: req.user.id });
+
+    return res.json({
+      tasks,
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / Number(limit)),
+    });
   } catch (error) {
     return res.status(500).json({ message: 'Server error.', error });
   }
